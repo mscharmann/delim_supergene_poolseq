@@ -1,0 +1,12 @@
+windowsize: 10000
+genomefile: "data/fakegenome.MALE.fa"
+samples_units_fqs_map: "data/pools_units_readfiles.txt"
+regions_for_plot_bed: "data/Ychrom.bed"
+
+## parameters for genotype filtering by PoolSNP: https://github.com/capoony/PoolSNP
+VCF_MAX_DEPTH_PROPORTION: 0.98
+VCF_MIN_DEPTH: 9 # across all libraries; e.g. min-cov=10 will only consider positions with a minimum coverage >10
+VCF_MIN_COUNT: 3 # the minimum count of an allele over both pools to consider this allele.
+
+## average number of individuals per pool, used for -ci parameter of KMC
+avg_samples_per_pool: 3
