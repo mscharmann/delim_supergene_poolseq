@@ -31,17 +31,17 @@ git clone https://github.com/mscharmann/delim_supergene_poolseq
 
 ## create stepwise
 ```
-conda create --name delimit_sexregions
-conda activate delimit_sexregions
-conda install snakemake=5.4 scipy bwa samtools bedtools seqtk vcftools bcftools tabix plink parallel freebayes -y
-conda install -c conda-forge -c bioconda -c defaults vcflib -y
+conda create --name dsp
+conda activate dsp
+conda install snakemake=5.4 bwa samtools bedtools seqtk vcftools bcftools tabix parallel -y
 conda install -c conda-forge r-ggplot2 r-cowplot -y
+conda install -c bioconda/label/cf201901 kmc -y
 ```
 ## OR use this YAML:
 
 ### modify prefix of installation path in last line of this file, then
 ```
-conda env create --file delimit_sexregions.2021-06-30.yml
+conda env create --file dsp.2021-10-27.yml
 ```
 
 ### get poolSNP
