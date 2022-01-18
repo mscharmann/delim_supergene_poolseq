@@ -43,16 +43,18 @@ conda env create --file dsp.2021-10-27.yml
 ```
 
 ### get poolSNP
-This is a heuristic SNP caller for poolseq data:
+This is a heuristic SNP caller for poolseq data. We need a specific commit that is no longer the main:
 
 ```
 cd delim_supergene_poolseq
 
-git clone https://github.com/capoony/PoolSNP
+git clone https://github.com/capoony/PoolSNP.git
+cd PoolSNP
+git checkout 30b8ba1
 ```
 
 ### modify poolSNP
-poolSNP will report only the SNPs, however, we also want the invariant, fixed sites reported.
+This older version of poolSNP will report only the SNPs, however, we also want the invariant, fixed sites reported.
 Modify the script PoolSNP/scripts/PoolSnp.py by replacing lines 202 - 216 with the following code:
 
 ```

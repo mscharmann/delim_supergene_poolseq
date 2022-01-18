@@ -6,7 +6,7 @@ samples_units_fqs_map = config["samples_units_fqs_map"]
 regions_for_plot_bed = config["regions_for_plot_bed"]
 
 avg_samples_per_pool = int( config["avg_samples_per_pool"] )
-kmer_covs = [2*avg_samples_per_pool, 5*avg_samples_per_pool, 10*avg_samples_per_pool, 100*avg_samples_per_pool]
+kmer_covs = [int(0.5*avg_samples_per_pool), 1*avg_samples_per_pool, 2*avg_samples_per_pool, 5*avg_samples_per_pool, 10*avg_samples_per_pool, 100*avg_samples_per_pool]
 
 import pandas as pd
 
@@ -116,7 +116,7 @@ rule samtools_sort:
 		temp( "mapped_reads_per_unit/{sample}-{unit}.sorted.bam" )
 	shell:
 		"""
-		samtools sort -T mapped_reads/{wildcards.sample}.{wildcards.unit} -O bam {input} > {output}
+		samtools sort -T mapped_reads_per_unit/{wildcards.sample}.{wildcards.unit} -O bam {input} > {output}
 		"""
 		
 rule merge_bams_per_sample:
@@ -299,7 +299,7 @@ rule dxy_rawstats:
 		"results_raw/dxy_raw.txt.gz"		
 	shell:
 		"""
-		bcftools view -Ov --genotype ^miss {input.gzvcf} | python scripts/make_denominator_and_numerator_for_dxy.two_pools.py  | gzip -c > {output}
+		bcftools view -Ov -M 2 --genotype ^miss {input.gzvcf} | python scripts/make_denominator_and_numerator_for_dxy.two_pools.py  | gzip -c > {output}
 		"""
 
 
@@ -517,9 +517,10 @@ rule KMC_count:
 	threads: 14
 	shell:
 		"""
+		# count kmers that occur at least 2 times (-ci), and count them up to 1 million (-cs)
 		echo {input} | tr " " "\n" >input_file_names.{wildcards.sample}
 		mkdir -p ./kmc_tempdir.{wildcards.sample}
-		kmc -m5 -sm -k16 -fq -ci2 -t{threads} @input_file_names.{wildcards.sample} results_raw/kmer_{wildcards.sample} ./kmc_tempdir.{wildcards.sample}
+		kmc -m5 -sm -k16 -fq -ci2 -cs1000000 -t{threads} @input_file_names.{wildcards.sample} results_raw/kmer_{wildcards.sample} ./kmc_tempdir.{wildcards.sample}
 		rm input_file_names.{wildcards.sample}
 		rm -r ./kmc_tempdir.{wildcards.sample}
 		"""
