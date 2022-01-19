@@ -79,7 +79,7 @@ for line in sys.stdin:
 		n_pairs = count_all_reads_p1 * count_all_reads_p2 ## this is the site-specific denominator; susbtract missing genotypes
 		try:
 			count_p_p1 = float( gt_fields_p1[1])
-			count_q_p1 = float( gt_fields_p1[1])
+			count_q_p1 = float( gt_fields_p1[2])
 		except ValueError: # gt_fields_xx is of the form: '1/2:0:16,2:18:0.89,0.11'. This means we had 2 ALT alleles, while the REF allele did NOT occur in the populations. It is a bi-allelic site nevertheless and will be used. 
 			count_p_p1 = float( gt_fields_p1[1].split(",")[0] )
 			count_q_p1 = float( gt_fields_p1[2].split(",")[1] )
