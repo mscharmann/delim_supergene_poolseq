@@ -77,12 +77,19 @@ for line in sys.stdin:
 		count_all_reads_p1 = float( gt_fields_p1[3] )
 		count_all_reads_p2 = float( gt_fields_p2[3] )
 		n_pairs = count_all_reads_p1 * count_all_reads_p2 ## this is the site-specific denominator; susbtract missing genotypes
-
-		count_p_p1 = float( gt_fields_p1[1] )
-		count_q_p1 = float( gt_fields_p1[2] )
-		count_p_p2 = float( gt_fields_p2[1] )
-		count_q_p2 = float( gt_fields_p2[2] )
-
+		try:
+			count_p_p1 = float( gt_fields_p1[1])
+			count_q_p1 = float( gt_fields_p1[1])
+		except ValueError: # gt_fields_xx is of the form: '1/2:0:16,2:18:0.89,0.11'. This means we had 2 ALT alleles, while the REF allele did NOT occur in the populations. It is a bi-allelic site nevertheless and will be used. 
+			count_p_p1 = float( gt_fields_p1[1].split(",")[0] )
+			count_q_p1 = float( gt_fields_p1[2].split(",")[1] )
+		try:
+			count_p_p2 = float( gt_fields_p2[1])
+			count_q_p2 = float( gt_fields_p2[2])
+		except ValueError:
+			count_p_p2 = float( gt_fields_p2[1].split(",")[0] )
+			count_q_p2 = float( gt_fields_p2[2].split(",")[1] )
+			
 		countsproduct_sum = ( count_p_p1*count_q_p2 ) + ( count_q_p1*count_p_p2 ) 
 		outl += [str(countsproduct_sum), str(n_pairs)]
 		sys.stdout.write("\t".join(outl) + "\n")
