@@ -85,7 +85,7 @@ rule bwa_map:
 		reads=get_fastq_sample_unit
 	output:
 		temp("mapped_reads_per_unit/{sample}-{unit}.bam")
-	threads: 14
+	threads: 24
 	run:
 		if len(input.reads) == 2: # paired-end!
 			shell("""
@@ -95,7 +95,8 @@ rule bwa_map:
 				# -F 2048 == -F 0x800 == NOT supplementary alignment
 				# sum of the bit flags: 2304 => filters against BOTH non-primary and supplementary alignments; verified with samtools flagstat
 				# filtering alignments to be "properly paired": -f 2
-				bwa mem -t {threads} -a {input.fa} {input.reads[0]} {input.reads[1]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2304 -f 2 -b -@ 2 - > {output} 
+				# filtering against multi-mapping alignments (which have MAPQ=0): --min-MQ 1
+				bwa mem -t {threads} -a {input.fa} {input.reads[0]} {input.reads[1]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2304 -f 2 --min-MQ 1 -b -@ 2 - > {output} 
 				""")
 		else: # single-end
 			shell("""
@@ -105,7 +106,8 @@ rule bwa_map:
 				# -F 2048 == -F 0x800 == NOT supplementary alignment
 				# -F 4 read unmapped (0x4)
 				# sum of the bit flags: 2308 => filters against non-primary and supplementary alignments and unmapped
-				bwa mem -t {threads} -a {input.fa} {input.reads[0]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2308 -b -@ 2 - > {output} 
+				# filtering against multi-mapping alignments (which have MAPQ=0): --min-MQ 1
+				bwa mem -t {threads} -a {input.fa} {input.reads[0]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2308 --min-MQ 1 -b -@ 2 - > {output} 
 				""")
 
 
