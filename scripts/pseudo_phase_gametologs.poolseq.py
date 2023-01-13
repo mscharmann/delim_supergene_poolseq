@@ -146,8 +146,8 @@ for line in sys.stdin:
 			freq_0_M = float( fields[9].split(":")[4] )
 			freq_0_F = float( fields[10].split(":")[4] )
 
-			if freq_0_M > 0.35 and freq_0_M < 0.65: # around freq 0.5 in M, but fixed in F -> X-Y patterned. because site present in both M and F, ALT must be the Y-like allele.
-				if freq_0_F == 0 or freq_0_F == 1.0:
+			if freq_0_M > 0.35 and freq_0_M < 0.65: # around freq 0.5 in M, but nearly-fixed (allowing up to 5%) in F -> X-Y patterned. because site present in both M and F, ALT must be the Y-like allele.
+				if freq_0_F <= 0.05 or freq_0_F >= 0.95:
 					XY_Y_like = hom_min
 					XY_X_like = hom_maj
 					ZW_W_like = hom_maj
@@ -156,8 +156,8 @@ for line in sys.stdin:
 				else:
 					not_gametolog_like = True
 
-			elif freq_0_F > 0.35 and freq_0_F < 0.65: # around freq 0.5 in F, but fixed in M -> Z-W patterned. because site present in both M and F, ALT must be the W-like allele.
-				if freq_0_M == 0 or freq_0_M == 1.0:
+			elif freq_0_F > 0.35 and freq_0_F < 0.65: # around freq 0.5 in F, but nearly-fixed (allowing up to 5%) in M -> Z-W patterned. because site present in both M and F, ALT must be the W-like allele.
+				if freq_0_M <= 0.05 or freq_0_M >= 0.95:
 					XY_Y_like = hom_maj
 					XY_X_like = hom_maj
 					ZW_W_like = hom_min
