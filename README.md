@@ -94,8 +94,9 @@ We also do not need the "bad_sites" output from poolSNP. To save a lot of time, 
 ### config.yaml: provide meta-data and set parameters
 This file should be mostly self-explanatory and also contains some comments. Further important points are:
 - samples_units_fqs_map = a table listing the pools, samples and "mapping" to their corresponding fastq files. Each sample or pool may have multiple (pairs) of fastq files, called a 'unit'. Both absolute paths and paths relative to the working directory should be tolerated. Both single and paired-end data can be handled, also mixed.
+- pop_order = a comma-separated list of the population names as they appear in samples_units_fqs_map, to specify their order in the outputs. First will be p1, and the Y-alleles in the putative XY-like gametologs will be specific to p1. Second will be p2, and the W-alleles in the putative ZW-like gametologs will be specific to p2.
 - genome fasta file path
-- regions_for_plot_bed: a BED file with a region of special interest, e.g. the sex chromosome. The pipeline produces statistics for all genomic windows and then extracts a subset (region). Plots will be made for all genomic windows, and for the subset region. This can be useful if the assembly contains many contigs that would make a messy plot.  
+- regions_for_plot_bed: a BED file with a region of special interest, e.g. the sex chromosome. The pipeline produces statistics for all genomic windows and then extracts a subset (region). Plots will be made only for the subset region. Plots are not really possible for assemblies with more than a few dozen contigs.  
 - windowsize = length of intervals (windows) in which to split all statistics and plots. Most useful values are between 1000 and 100000.
 - VCF_MAX_DEPTH_PROPORTION = a poolSNP parameter. Will discard sites that exceed the Xth percentile of coverage. Must use to exclude highly repetitive regions.
 - VCF_MIN_DEPTH = a poolSNP parameter. Minimuzm read depth across all pools to consider a site ; e.g. min-cov=10 will only consider positions with a minimum coverage >10
