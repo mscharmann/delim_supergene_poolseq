@@ -1,6 +1,6 @@
 # delim_supergene_poolseq
 
-a pipeline to delimit supergene-like regions in chromosome-scale genome assemblies, using POOLED re-sequencing data of two groups 
+a pipeline to delimit supergene-like regions in chromosome-scale genome assemblies, using POOLED re-sequencing data of two groups
 
 starting from a genome .fasta and fastq reads, generates statistics in windows along the genome:
 
@@ -33,7 +33,7 @@ create stepwise:
 ```
 conda create --name dsp
 conda activate dsp
-conda install snakemake=5.4 bwa samtools bedtools seqtk vcftools bcftools tabix parallel -y
+conda install snakemake=5.4 bwa samtools bedtools seqtk vcftools bcftools tabix parallel pigz -y
 conda install -c conda-forge r-ggplot2 r-cowplot -y
 conda install -c bioconda/label/cf201901 kmc -y
 ```
@@ -81,7 +81,12 @@ Furthermore, we need BGZIP compressed output. Replace line 284 of the script Poo
 ```
 cat $out/temp/header.txt $out/temp/SNPs.txt | bgzip > $out.vcf.gz
 ```
-We also do not need the "bad_sites" output from poolSNP. To save time, delete lines 288 ff from the script PoolSNP/PoolSNP.sh
+OPTIONAL: For speedup, can use a parallel implementation of gzip, pigz. Replace line 175 with the following:
+```
+gunzip -c $mpileup | awk -v out="$out/temp/cov/mpileups/" -v file="" -v i="" '{if (i!=$1) {close(file); close(command); if (i!="") {print i" done"}} else {file=out$1".mpileup.gz" ; command= "pigz -p 8 -c > "file  ; print | command; }; i=$1 }'
+```
+
+We also do not need the "bad_sites" output from poolSNP. To save a lot of time, delete lines 288 ff from the script PoolSNP/PoolSNP.sh
 
 
 ## run
@@ -121,7 +126,7 @@ bedtools intersect -wa -a calls/allstats.txt -b bigchroms.bed > subs.txt
 
 Rscript scripts/plot_allstats.R subs.txt bigchroms.pdf
 ```
-- cleaning up / archiving: Once the final stats for all desired windowsizes are produced, it makes sense to clean up large intermediate files. I suggest to keep only the config.yaml, the popmap and samples_reads_map, the results_processed, or if you have a bit of space, also results_raw. I would delete the large .BAM files and intermediate VCF files; in the worst case these can be re-calculated. To clean up in this way, run 
+- cleaning up / archiving: Once the final stats for all desired windowsizes are produced, it makes sense to clean up large intermediate files. I suggest to keep only the config.yaml, the popmap and samples_reads_map, the results_processed, or if you have a bit of space, also results_raw. I would delete the large .BAM files and intermediate VCF files; in the worst case these can be re-calculated. To clean up in this way, run
 ```
 rm -rf mapped_reads FB_chunks FB_chunk_VCFs FB_chunk_VCFs_filtered FB_regionsALL.bed normalization_coefficients.txt
 ```
@@ -182,11 +187,11 @@ for s in snpsites:
 	s = int(s)
 	isnuc = X_Y_gametolog_region[s]
 	newnuc = np.random.choice([ x for x in ["A","C","T","G"] if not x == isnuc])
-	X_Y_gametolog_region[s] = newnuc 
+	X_Y_gametolog_region[s] = newnuc
 
 
 X_Y_gametolog_region = "".join(X_Y_gametolog_region)
-Y_hemiz_region = "".join( np.random.choice(["A","C","T","G"], size = 100000, replace = True) ) 
+Y_hemiz_region = "".join( np.random.choice(["A","C","T","G"], size = 100000, replace = True) )
 
 Ychrom = Xchrom[:100000] + X_Y_gametolog_region + Y_hemiz_region + Xchrom[400000:]
 
@@ -260,4 +265,3 @@ done
 
 gzip *.fastq
 ```
-
