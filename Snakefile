@@ -98,23 +98,23 @@ rule bwa_map:
 			shell("""
 				# filtering alignments to be primary (i.e. each read only once; if multiple locations equally possible than a random one is chosen):
 				# -F 256 == -F 0x0100 == NOT not primary alignment
-				# filtering alignments to be NOT supplementary (supplementary: sections of read map to discontinuous coordinates, e.g. across an inversion breakpoint..):
-				# -F 2048 == -F 0x800 == NOT supplementary alignment
-				# sum of the bit flags: 2304 => filters against BOTH non-primary and supplementary alignments; verified with samtools flagstat
-				# filtering alignments to be "properly paired": -f 2
+				# NOT filtering alignments to be NOT supplementary (supplementary: sections of read map to discontinuous coordinates, e.g. across an inversion breakpoint..):
+				# NOT -F 2048 == -F 0x800 == NOT supplementary alignment
+				# NOT sum of the bit flags: 2304 => filters against BOTH non-primary and supplementary alignments; verified with samtools flagstat
+				# NOT filtering alignments to be "properly paired": -f 2
 				# filtering against multi-mapping alignments (which have MAPQ=0): --min-MQ 1
-				bwa mem -t {threads} -a {input.fa} {input.reads[0]} {input.reads[1]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2304 -f 2 --min-MQ 1 -b -@ 2 - > {output}
+				bwa mem -t {threads} -a {input.fa} {input.reads[0]} {input.reads[1]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 256 --min-MQ 1 -b -@ 2 - > {output}
 				""")
 		else: # single-end
 			shell("""
 				# filtering alignments to be primary (i.e. each read only once; if multiple locations equally possible than a random one is chosen):
 				# -F 256 == -F 0x0100 == NOT not primary alignment
-				# filtering alignments to be NOT supplementary (supplementary: sections of read map to discontinuous coordinates, e.g. across an inversion breakpoint..):
-				# -F 2048 == -F 0x800 == NOT supplementary alignment
-				# -F 4 read unmapped (0x4)
-				# sum of the bit flags: 2308 => filters against non-primary and supplementary alignments and unmapped
+				# NOT filtering alignments to be NOT supplementary (supplementary: sections of read map to discontinuous coordinates, e.g. across an inversion breakpoint..):
+				# NOT -F 2048 == -F 0x800 == NOT supplementary alignment
+				# NOT -F 4 read unmapped (0x4)
+				# NOT sum of the bit flags: 2308 => filters against non-primary and supplementary alignments and unmapped
 				# filtering against multi-mapping alignments (which have MAPQ=0): --min-MQ 1
-				bwa mem -t {threads} -a {input.fa} {input.reads[0]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 2308 --min-MQ 1 -b -@ 2 - > {output}
+				bwa mem -t {threads} -a {input.fa} {input.reads[0]} -R "@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tPL:Illumina" | samtools view -F 256 --min-MQ 1 -b -@ 2 - > {output}
 				""")
 
 
@@ -162,9 +162,9 @@ rule samtools_mpileup:
 
 		# -d 500: use at most 500 reads per input BAM file, apparently these are sampled in order of appearance.
 		# --min-MQ 15: minimum mapping quality of an alignment, otherwise skip
-		# --no-BAQ : do NOT re-calculate mapping quality (which involves re-aligning). Instead, will use MAPQ as stored in BAM file.
+		# NOT --no-BAQ : do NOT re-calculate mapping quality (which involves re-aligning). Instead, will use MAPQ as stored in BAM file.
 		# --min-BQ INT        skip bases with baseQ/BAQ smaller than INT [13]
-		samtools mpileup -d 500 -f {input.ref} --min-MQ 20 --min-BQ 15 --no-BAQ {input.bamfiles} | pigz -p 4 -c > {output}
+		samtools mpileup -d 500 -f {input.ref} --min-MQ 20 --min-BQ 15 {input.bamfiles} | pigz -p 4 -c > {output}
 		"""
 
 
